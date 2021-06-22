@@ -1,0 +1,12 @@
+File[] fileList(String dir) {
+    file(dir).listFiles({it.isFile()} as FileFilter).sort()
+}
+
+task checksum {
+    doLast {
+        fileList('.').each { file ->
+            ant.checksum(file: file, property: file.name)
+            println "$file.name Checksum: ${ant.properties[file.name]}"
+        }
+    }
+}

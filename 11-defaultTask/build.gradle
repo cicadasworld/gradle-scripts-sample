@@ -1,0 +1,19 @@
+task clean {
+    doLast {
+        println 'Cleaning!'
+    }
+}
+
+task run {
+    doLast {
+        println 'Running!'
+    }
+}
+
+task other {
+    doLast {
+        println "Other task!"
+    }
+}
+
+defaultTasks 'clean', 'run', 'other'

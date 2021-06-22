@@ -1,0 +1,6 @@
+apply plugin: 'java'
+
+task libs(type: Sync) {
+    from configurations.runtimeClasspath
+    into "$buildDir/libs"
+}

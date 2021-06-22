@@ -1,0 +1,8 @@
+task count {
+    doLast {
+        4.times {
+            print "$it "
+        }
+        println ""
+    }
+}

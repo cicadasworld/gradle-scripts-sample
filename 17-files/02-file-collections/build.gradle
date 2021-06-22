@@ -1,0 +1,14 @@
+def collection = files('src/file1.txt', new File('src/file2.txt'), ['src/file3.txt', 'src/file4.txt'])
+
+collection.each { file ->
+    println file.name
+}
+
+task list {
+    doLast {
+        File srcDir = file('src')
+        collection = files { srcDir.listFiles() }
+        println "Contents of $srcDir"
+        collection.collect { relativePath(it) }.sort().each { println it }
+    }
+}

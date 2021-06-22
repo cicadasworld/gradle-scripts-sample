@@ -1,0 +1,21 @@
+task hello {
+    doLast {
+        println project.buildDir
+        println getProject().getBuildDir()
+    }
+}
+
+task copy(type: Copy) {
+    description 'Copies the resource directory to the target directory.'
+    from 'resources'
+    into 'target'
+    include('**/*.txt', '**/*.xml', '**/*.properties')
+}
+
+task printProps {
+    doLast {
+        println gradlePropertiesProp
+        println envProjectProp
+        println System.properties['system']        
+    }
+}

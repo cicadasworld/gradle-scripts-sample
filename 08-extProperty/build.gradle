@@ -1,0 +1,10 @@
+task hello {
+    ext.myProperty = 'myValue'
+}
+
+task printHelloProperty {
+    doLast {
+        println hello.myProperty
+    }
+}
+

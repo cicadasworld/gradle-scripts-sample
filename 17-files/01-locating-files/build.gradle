@@ -1,0 +1,8 @@
+def configFile = file('src/config.xml')
+
+configFile = file(configFile.absolutePath)
+
+def configFile2 = file(new File('src/config.xml'))
+
+println configFile
+println configFile2

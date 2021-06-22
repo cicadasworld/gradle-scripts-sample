@@ -1,0 +1,58 @@
+task copyTask(type: Copy) {
+    from 'src/main/webapp'
+    into 'build/explodedWar'
+}
+
+task anotherCopyTask(type: Copy) {
+    // 复制 src/main/webapp 目录下的所有文件
+    from 'src/main/webapp'
+
+    // 复制一个单独文件
+    from 'src/staging/index.html'
+
+    // 复制一个任务输出的文件
+    from copyTask
+
+    // 显式使用任务的 outputs 属性复制任务的输出文件
+    from copyTaskWithPatterns.outputs
+
+    // 复制一个 ZIP 压缩文件的内容
+    from zipTree('src/main/assets.zip')
+
+    // 最后指定目标目录
+    into { 'target' }
+}
+
+task rename(type: Copy) {
+    from 'src/main/webapp'
+    into 'build/explodedWar'
+    // 使用一个闭包映射文件名
+    rename { String fileName ->
+        fileName.replace('-staging-', '')
+    }
+    // 使用正则表达式映射文件名
+    rename '(.+)-staging-(.+)', '$1$2'
+    rename(/(.+)-staging-(.+)/, '$1$2')
+}
+
+import org.apache.tools.ant.filters.FixCrLfFilter
+import org.apache.tools.ant.filters.ReplaceTokens
+
+task filter(type: Copy) {
+    from 'src/main/webapp'
+    into 'build/explodedWar'
+    // 在文件中替代属性标记
+    expand(copyright: '2009', version: '2.3.1')
+    expand(project.properties)
+    // 使用 Ant 提供的过滤器
+    filter(FixCrLfFilter)
+    filter(ReplaceTokens, tokens: [copyright: '2009', version: '2.3.1'])
+    // 用一个闭合来过滤每一行
+    filter { String line ->
+        "[$line]"
+    }
+    // 使用闭合来删除行
+    filter { String line ->
+        line.startsWith('-') ? null : line
+    }
+}

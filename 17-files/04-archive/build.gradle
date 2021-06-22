@@ -1,0 +1,3 @@
+def zip = zipTree('demo.zip')
+
+def tar = tarTree('demo.tar')

@@ -1,0 +1,7 @@
+-classpath 'D:\\03-projects\\02-idea_ws\\gradle-scripts\\13-publishJar\\build\\classes\\java\\main;D:\\03-projects\\02-idea_ws\\gradle-scripts\\13-publishJar\\build\\resources\\main;C:\\Users\\hujin\\.gradle\\caches\\modules-2\\files-2.1\\org.slf4j\\slf4j-simple\\1.7.28\\cf5f2cf3c31e0e41b68d932d756398a1238d4456\\slf4j-simple-1.7.28.jar;C:\\Users\\hujin\\.gradle\\caches\\modules-2\\files-2.1\\org.slf4j\\slf4j-api\\1.7.28\\2cd9b264f76e3d087ee21bfc99305928e1bdb443\\slf4j-api-1.7.28.jar'
+-d 'D:\\03-projects\\02-idea_ws\\gradle-scripts\\13-publishJar\\build\\docs\\javadoc'
+-doctitle '13-publishJar 1.0.0 API'
+-notimestamp 
+-quiet 
+-windowtitle '13-publishJar 1.0.0 API'
+'D:\\03-projects\\02-idea_ws\\gradle-scripts\\13-publishJar\\src\\main\\java\\com\\jin\\Main.java'

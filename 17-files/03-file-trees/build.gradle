@@ -1,0 +1,19 @@
+def tree = fileTree(dir: 'src/main')
+
+tree.include '**/*.java'
+tree.exclude '**/Abstract*'
+
+tree = fileTree('src').include('**/*.java')
+
+tree = fileTree('src') {
+    include '**/*.java'
+}
+
+tree = fileTree(dir: 'src', include: '**/*.java')
+tree = fileTree(dir: 'src', includes: ['**/*.java', '**/*.xml'])
+tree = fileTree(dir: 'src', include: '**/*.java', exclude: '**/*test*/**')
+
+
+tree.each { file ->
+    println file
+}
