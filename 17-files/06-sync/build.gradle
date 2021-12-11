@@ -1,4 +1,6 @@
-apply plugin: 'java'
+plugins {
+    id 'java'
+}
 
 task libs(type: Sync) {
     from configurations.runtimeClasspath

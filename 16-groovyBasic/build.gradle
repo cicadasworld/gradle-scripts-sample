@@ -16,6 +16,5 @@ task printProps {
     doLast {
         println gradlePropertiesProp
         println envProjectProp
-        println System.properties['system']        
     }
 }
