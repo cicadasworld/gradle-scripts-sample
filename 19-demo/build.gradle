@@ -1,0 +1,249 @@
+// create by hujin@ 2021/12/10
+
+// 编译输出模块
+def BUILD_OUTPUT_APPNAME = 'GTCloud-DataMgmt-0.1'
+
+// 源代码目录
+def SRC_ROOT = 'U:'
+
+// 编译输出目录
+def BUILD_OUTPUT_ROOT = 'C:\\temp\\GTCloud-DataMgmt-Build'
+
+// 编译平台
+def buildPlat = 'windows_x64' // ['windows_x64', 'kylin64_x64_g++', 'kylin64_arm_ft_g++']
+
+def outRoot = new File(BUILD_OUTPUT_ROOT, buildPlat)
+def outDir = new File(outRoot, BUILD_OUTPUT_APPNAME)
+
+// FTP参数
+def FTP_HOST = 'xxx.x.x.xxx'
+def FTP_PORT = 21
+def FTP_USER = 'anonymous'
+def FTP_PASSWORD = 'anonymous'
+def FTP_URL = 'gtcloud/datamgmt'
+
+def etcDir = "$outDir/mapserver/etc"
+def webetcDir = "$outDir/mapserver/webetc"
+def sysdataDir = "$outDir/sysdata"
+def xappsDir = "$outDir/mapserver/xapps"
+
+def DEP_PROJS = [
+    'gtcloud/gtcloud-datamgmt/gtcloud-datamgmt-jobproc': 'gtcloud-datamgmt-jobproc',
+    'gtcloud/gtcloud-datamgmt/gtcloud-datamgmt-jobschd': 'gtcloud-datamgmt-jobschd',
+    'gtcloud/gtcloud-datamgmt/gtcloud-datamgmt-webconsole': 'gtcloud-datamgmt-webconsole',
+    'gtcloud/gtcloud-otheraplications/gtcloud-service-wcsgen': 'gtcloud-service-wcsgen',
+]
+def SYSDATA_FILES = [
+    'gtcloud/gtcloud-datamgmt/build2/main/configs/common/appconfig': 'appconfig',
+    'gtcloud/gtcloud-datamgmt/build2/main/configs/common/config': 'config',
+]
+def WEBETC_FILES = [
+    'gtcloud/gtcloud-datamgmt/build2/main/configs/common/webetc/datamgmt': 'datamgmt'
+]
+def LAUNCHER_FILES_WIN = [
+    'gtcloud/gtcloud-datamgmt/build2/main/configs/windows/proclist': 'resbundles/gt4.maps4jlauncher',
+]
+def CUSTOM_FILES = [
+]
+
+defaultTasks 'archiveOutputs'
+
+tasks.register('cleanOutputDir') {
+    description '清除旧内容'
+    doLast {
+        delete outDir
+    }
+}
+
+tasks.register('downloadBaseArchive') {
+    description '下载原始构建包'
+    doLast {
+        def stemName = BUILD_OUTPUT_APPNAME.replace('-', '_').toLowerCase()
+        def remoteFile = "ftp://$FTP_USER:$FTP_PASSWORD@$FTP_HOST:$FTP_PORT/$FTP_URL/$buildPlat/$stemName-base"
+        def localArchiveFile = "$stemName-$bildPlat-base"
+        if (buildPlat.startsWith('win')) {
+            remoteFile = "$remoteFile.7z"
+            localArchiveFile = "$localArchiveFile.7z"
+        } else {
+            remoteFile = "$remoteFile.tar.gz"
+            localArchiveFile = "$localArchiveFile.tar.gz"
+        }
+        outDir.parentFile.mkdirs()
+        localArchiveFile = new File(outDir.parentFile, localArchiveFile)
+        ant.get(src: remoteFile, dest: localArchiveFile, skipexisting: 'true')
+        exec {
+            workingDir outDir.parentFile
+            commandLine '7z', 'x', localArchiveFile
+        }
+        delete localArchiveFile
+    }
+}
+
+tasks.register('buildSpringbootJars') {
+    description '编译springboot应用程序'
+    dependsOn 'downloadBaseArchive'
+    doLast {
+        DEP_PROJS.each { src, dest ->
+            def mainAppDir = new File(SRC_ROOT, src)
+
+            def buildFile = new File(mainAppDir, 'build.gradle')
+            copy {
+                from buildFile
+                into mainAppDir
+                rename { 'build.gradle.bak' }
+            }
+            buildFile.withWriterAppend { w -> 
+                w.writeLine "sourceSet {"
+                w.writeLine "    main.resources {"
+                w.writeLine "        exclude 'application.properties'"
+                w.writeLine "        exclude 'logback.xml'"
+                w.writeLine "    }"
+                w.writeLine "}"
+            }
+            
+            if (System.properties['os.name'].toLowerCase().contains('windows')) {
+                exec {
+                    workingDir mainAppDir
+                    commandLine 'gradle.bat', 'clean', 'assemble'
+                }
+            } else {
+                exec {
+                    workingDir mainAppDir
+                    commandLine './gradle', 'clean', 'assemble'
+                }
+            }
+
+            def buildFileBak = new File(mainAppDir, 'build.gradle.bak')
+            copy {
+                from buildFileBak
+                into mainAppDir
+                rename 'build.gradle'
+            }
+            delete buildFileBak
+
+            def bootJarDir = new File(mainAppDir, 'build/libs')
+            def destDir = new File(xappsDir, dest)
+            copy {
+                from bootJarDir
+                into destDir
+            }
+        }
+    }
+}
+
+tasks.register('rewriteSysdataConfigFiles') {
+    description '重写sysdata配置信息'
+    doLast {
+        SYSDATA_FILES.each { src, dest ->
+            def srcDir = new File(SRC_ROOT, src)
+            def destDir = new File(sysdataDir, dest)
+            copy {
+                from srcDir
+                into destDir
+            }
+        }
+    }
+}
+
+tasks.register('rewriteWebetcConfigFiles') {
+    description '重写webetc配置信息'
+    doLast {
+        WEBETC_FILES.each { src, dest ->
+            def srcDir = new File(SRC_ROOT, src)
+            def destDir = new File(webetcDir, dest)
+            copy {
+                from srcDir
+                into destDir
+            }
+        }
+    }
+}
+
+tasks.register('rewriteLauncherConfigFiles') {
+    description '重写launcher进程配置信息'
+    doLast {
+        LAUNCHER_FILES_WIN.each { src, dest ->
+            def srcDir = new File(SRC_ROOT, src)
+            def destDir = new File(etcDir, dest)
+            copy {
+                from srcDir
+                into destDir
+            }
+        }
+    }
+}
+
+tasks.register('rewriteCustomConfigFiles') {
+    description '重写自定义配置信息'
+    doLast {
+        CUSTOM_FILES.each { src, dest ->
+            def srcDir = new File(SRC_ROOT, src)
+            def destDir = new File(outRoot, dest)
+            copy {
+                from srcDir
+                into destDir
+            }
+        }
+    }
+}
+
+tasks.register('rewriteConfigFiles') {
+    description '重写配置文件(sysdata/webetc/launcher/custom)'
+    dependsOn 'buildSpringbootJars'
+    dependsOn 'rewriteSysdataConfigFiles'
+    dependsOn 'rewriteWebetcConfigFiles'
+    dependsOn 'rewriteLauncherConfigFiles'
+    dependsOn 'rewriteCustomConfigFiles'
+}
+
+tasks.register('archiveOutputs') {
+    description '记录版本并打成压缩包'
+    dependsOn 'rewriteConfigFiles'
+    doLast {
+        def versionSuffix = System.getenv('GTCLOUD_VERSION_SUFFIX')
+        def date = new Date()
+        def currentDate = date.format('yyyyMMdd')
+        def currentDateTime = date.format('yyyy/MM/dd HH:mm:ss')
+        def build = "$buildPlat-$currentDate"
+        build = versionSuffix == null ? build : "$build-$versionSuffix"
+        def stemName = BUILD_OUTPUT_APPNAME.replace('-', '_').toLowerCase()
+
+        def versionLines = [
+            "##",
+            "## $currentDateTime",
+            "##",
+            "version = $stemName",
+            "build = $build"
+        ]
+        def versionFile = new File(outDir, 'mapserver/webetc/common/version.properties')
+        versionFile.parentFile.mkdirs()
+        versionFile.withWriter { w ->
+            versionLines.each { line ->
+                w.writeLine line
+            }
+        }
+
+        if (buildPlat.startsWith('win')) {
+            def severzFile = "$stemName-$build.7z"
+            new File(outDir.parentFile, severzFile).delete()
+            exec {
+                workingDir outDir.parentFile
+                commandLine '7z', 'a', '-t7z', severzFile, BUILD_OUTPUT_APPNAME
+            }
+        } else {
+            def tarFileName = "$stemName-$build.tar"
+            def gzFileName = "$tarFileName.gz"
+            new File(outDir.parentFile, tarFileName).delete()
+            new File(outDir.parentFile, gzFileName).delete()
+            exec {
+                workingDir outDir.parentFile
+                commandLine '7z', 'a', '-ttar' , tarFileName, BUILD_OUTPUT_APPNAME
+            }
+            exec {
+                workingDir outDir.parentFile
+                commandLine '7z', 'a', '-tgzip', gzFileName, tarFileName
+            }
+            new File(outDir.parentFile, tarFileName).delete()
+        }
+    }
+}

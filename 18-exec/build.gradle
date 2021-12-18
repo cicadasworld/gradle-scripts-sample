@@ -1,0 +1,15 @@
+task serverZip {
+    doLast {
+        exec {
+            workingDir '.'
+            executable '7z'
+            args 'a', '-t7z', 'filename.7z', file('test')
+        }
+
+        exec {
+            workingDir '.'
+            commandLine '7z', 'a', '-t7z', 'filename.7z', file('test')
+        }
+    }
+
+}

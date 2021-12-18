@@ -1,0 +1,12 @@
+task myClean {
+    doLast {
+        delete 'src/main/java/Main.java'
+        delete 'src'
+
+        delete file('src/main/java/Main.java')
+        delete file('src')
+
+        file('src/main/java/Main.java').delete()
+        file('src').deleteDir()
+    }
+}
