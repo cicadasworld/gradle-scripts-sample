@@ -1,0 +1,62 @@
+configurations {
+    ftpAntTask
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    ftpAntTask("org.apache.ant:ant-commons-net:1.9.14") {
+        module 'commons-net:commons-net:3.6'
+    }
+}
+
+def uploadFile(String serverIp, String port, String username, String password, String url, String localDir, String fileName) {
+    ant {
+        taskdef(
+            name: 'ftp', 
+            classname: 'org.apache.tools.ant.taskdefs.optional.net.FTP', 
+            classpath: configurations.ftpAntTask.asPath
+        )
+        ftp(
+            action: 'put'
+            server: serverIp, 
+            port: port, 
+            remotedir: url, 
+            userid: username, 
+            password: password
+        ) {
+            fileset(dir: localDir) {
+                include(name: fileName)
+            }
+        }
+    }
+}
+
+def downloadFiles(String serverIp, String port, String username, String password, String url, String localDir, String filePattern) {
+    ant {
+        taskdef(
+            name: 'ftp', 
+            classname: 'org.apache.tools.ant.taskdefs.optional.net.FTP', 
+            classpath: configurations.ftpAntTask.asPath
+        )
+        ftp(
+            action: 'get'
+            server: serverIp, 
+            port: port, 
+            remotedir: url, 
+            userid: username, 
+            password: password
+        ) {
+            fileset(dir: localDir) {
+                include(name: filePattern)
+            }
+        }
+    }
+}
+
+ext {
+    uploadFile = this.&uploadFile
+    downloadFiles = this.&downloadFiles
+}

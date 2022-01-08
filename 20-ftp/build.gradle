@@ -1,0 +1,27 @@
+apply from: 'ftp-utils.gradle'
+
+tasks.register('uploadFile') {
+    doLast {
+        def serverIp = '127.0.0.1'
+        def port = '21'
+        def username = 'anonymous'
+        def password = 'anonymous'
+        def url = 'pub/remote'
+        def localDir = '.'
+        def fileName = 'README.txt'
+        uploadFile()
+    }
+}
+
+tasks.register('downloadFiles') {
+    doLast {
+        def serverIp = '127.0.0.1'
+        def port = '21'
+        def username = 'anonymous'
+        def password = 'anonymous'
+        def url = 'pub/remote'
+        def localDir = '.'
+        def fileName = '**/*.txt'
+        downloadFiles()
+    }
+}
