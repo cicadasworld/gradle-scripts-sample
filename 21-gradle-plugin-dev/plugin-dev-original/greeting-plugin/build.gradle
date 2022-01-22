@@ -1,0 +1,45 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+}
+
+repositories {
+    maven {
+        url 'http://129.0.3.201:28000/maven2/'
+    }
+}
+
+dependencies {
+    implementation gradleApi()
+    testImplementation 'junit:junit:4.12'
+}
+
+task sourceJar(type: Jar) {
+    from sourceSets.main.allSource
+    archiveClassifier = 'sources'
+}
+
+task javadocJar(type: Jar) {
+    from javadoc
+    archiveClassifier = 'javadoc'
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            groupId = 'cn.jin.plugin'
+            artifactId = 'greeting'
+            version = '1.0.0'
+
+            from components.java
+            artifact sourceJar
+            artifact javadocJar
+        }
+    }
+
+    repositories {
+        maven {
+            url = uri('../repo')
+        }
+    }
+}

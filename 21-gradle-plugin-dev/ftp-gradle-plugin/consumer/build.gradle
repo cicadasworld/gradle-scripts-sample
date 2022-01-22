@@ -1,0 +1,22 @@
+buildscript {
+    repositories {
+        maven {
+            url = uri('repo')
+        }
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'cn.jin.plugin:ftp:1.0.0'
+    }
+}
+
+apply plugin: 'cn.jin.plugin.ftp'
+
+tasks.register('uploadFile', cn.jin.plugin.ftp.UploadTask) {
+    host = '127.0.0.1'
+    port = 21
+    username = 'admin'
+    password = 'admin'
+    remoteDir = '/release'
+    filePath = 'readme.txt'
+}

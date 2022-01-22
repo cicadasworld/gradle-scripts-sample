@@ -1,0 +1,16 @@
+buildscript {
+    repositories {
+        maven {
+            url uri('../repo')
+        }
+    }
+    dependencies {
+        classpath 'cn.jin.plugin:greeting:1.0.0'
+    }
+}
+
+apply plugin: 'cn.jin.plugin.greeting'
+
+greeting {
+    who = 'Bob'
+}

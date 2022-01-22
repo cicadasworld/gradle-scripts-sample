@@ -1,0 +1,52 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+}
+
+group = 'cn.jin.plugin'
+version = '1.0.0'
+
+repositories {
+    maven {
+        url 'http://129.0.3.201:28000/maven2/'
+    }
+}
+
+ext {
+    commonsNetVersion = '3.6'
+    lombokVersion = '1.18.8'
+}
+
+dependencies {
+    implementation gradleApi()
+    implementation "commons-net:commons-net:$commonsNetVersion"
+    compileOnly "org.projectlombok:lombok:$lombokVersion"
+    annotationProcessor "org.projectlombok:lombok:$lombokVersion"
+}
+
+task sourceJar(type: Jar) {
+    from sourceSets.main.allSource
+    archiveClassifier = 'sources'
+}
+
+task javadocJar(type: Jar) {
+    from javadoc
+    archiveClassifier = 'javadoc'
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = 'ftp'
+            from components.java
+            artifact sourceJar
+            artifact javadocJar
+        }
+    }
+
+    repositories {
+        maven {
+            url = uri('repo')
+        }
+    }
+}

@@ -6,7 +6,6 @@ plugins {
 
 group = 'com.jin'
 version = '1.0.0'
-sourceCompatibility = '1.8'
 
 jar {
     manifest {
@@ -29,9 +28,7 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             from components.java
-            groupId = "com.jin"
             artifactId = "mypubdemo"
-            version = '1.0.0'                     
         }
     }
     repositories {

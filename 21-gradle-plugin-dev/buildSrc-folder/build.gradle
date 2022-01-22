@@ -1,0 +1,6 @@
+apply plugin: cn.jin.plugin.GreetingPlugin
+
+greeting {
+    greeter = "Stranger"
+    message = "Message from the build script"
+}
