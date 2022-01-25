@@ -11,11 +11,11 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * 自定义上传任务
+ * 自定义下载任务
  */
 @Getter
 @Setter
-public class UploadTask extends DefaultTask {
+public class DownloadTask extends DefaultTask {
 
     /**
      * 主机名或IP地址
@@ -42,37 +42,31 @@ public class UploadTask extends DefaultTask {
     private String password;
 
     /**
-     * 服务器目标目录
+     * 服务器文件路径
      **/
     @Input
-    private String remoteDir;
+    private String src;
 
     /**
      * 本地文件路径
      **/
     @Input
-    private String filePath;
+    private String dest;
 
     /**
-     * 执行上传任务
+     * 执行下载任务
      */
     @TaskAction
-    public void upload() {
+    public void download() {
         Logger logger = getProject().getLogger();
         FtpClient ftpClient = new FtpClient(host, port, username, password);
         try {
             ftpClient.open();
             ftpClient.setProperty();
-            File file = new File(filePath);
-            String name = file.getName();
-            if (!file.exists()) {
-                logger.warn("文件{}不存在", name);
-            }
-            String path = remoteDir + "/" + name;
-            if (ftpClient.putFileToPath(file, path)) {
-                logger.warn("上传完毕: {}", path);
+            if (ftpClient.downloadFile(src, dest)) {
+                logger.warn("下载完毕");
             } else {
-                logger.warn("上传失败");
+                logger.warn("下载失败");
             }
         } catch (IOException e) {
             logger.warn(e.getMessage());

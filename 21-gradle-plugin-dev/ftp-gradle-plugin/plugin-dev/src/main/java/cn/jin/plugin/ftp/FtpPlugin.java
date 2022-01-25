@@ -6,7 +6,7 @@ import org.gradle.api.Project;
 /**
  * upload plugin
  */
-public class UploadPlugin implements Plugin<Project> {
+public class FtpPlugin implements Plugin<Project> {
     /**
      * 注册上传任务
      * @param project 构建项目

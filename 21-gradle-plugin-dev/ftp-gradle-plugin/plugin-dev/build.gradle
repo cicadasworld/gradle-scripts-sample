@@ -7,9 +7,7 @@ group = 'cn.jin.plugin'
 version = '1.0.0'
 
 repositories {
-    maven {
-        url 'http://129.0.3.201:28000/maven2/'
-    }
+    mavenCentral()
 }
 
 ext {
